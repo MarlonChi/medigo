@@ -21,7 +21,8 @@ export enum FormFieldType {
 }
 
 export const PatientForm = () => {
-  const [isLoading] = useState(false);
+  //   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
@@ -32,8 +33,30 @@ export const PatientForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof UserFormValidation>) {
-    console.log(values);
+  async function onSubmit({
+    name,
+    email,
+    phone,
+  }: z.infer<typeof UserFormValidation>) {
+    setIsLoading(true);
+
+    try {
+      const userData = {
+        name,
+        email,
+        phone,
+      };
+
+      console.log("userData: ", userData);
+
+      //   const user = await createUser(userData);
+
+      //   if (user) router.push(`/patients/${user.$id}/register}`);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
