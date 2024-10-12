@@ -20,12 +20,16 @@ type AppointmentFormProps = {
   userId: string;
   patientId: string;
   type: "create" | "cancel" | "schedule";
+  appointment: any;
+  setOpen: (open: boolean) => void;
 };
 
 export const AppointmentForm = ({
   userId,
   patientId,
   type,
+  appointment,
+  setOpen,
 }: AppointmentFormProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
