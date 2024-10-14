@@ -7,26 +7,7 @@ import StatusBadge from "../status-badge";
 import { formatDateTime } from "@/lib/utils";
 import { Doctors } from "@/constants";
 import AppointmentModal from "../appointment-modal";
-
-export type Appointment = {
-  id: string;
-  patient: Patient;
-  status: "scheduled" | "pending" | "cancelled";
-  schedule: string;
-  email: string;
-  primaryPhysician: Doctor;
-  userId: string;
-};
-
-interface Patient {
-  id: string;
-  name: string;
-}
-
-interface Doctor {
-  name: string;
-  image: string;
-}
+import { Appointment } from "@/types/appwrite.types";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -67,7 +48,7 @@ export const columns: ColumnDef<Appointment>[] = [
     header: "Médico",
     cell: ({ row }) => {
       const doctor = Doctors.find(
-        (doc: Doctor) => doc.name === String(row.original.primaryPhysician)
+        (doc) => doc.name === String(row.original.primaryPhysician)
       );
 
       return (
