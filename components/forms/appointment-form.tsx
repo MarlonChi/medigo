@@ -30,7 +30,7 @@ type AppointmentFormProps = {
 export const AppointmentForm = ({
   userId,
   patientId,
-  type,
+  type = "create",
   appointment,
   setOpen,
 }: AppointmentFormProps) => {
@@ -42,19 +42,22 @@ export const AppointmentForm = ({
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
     resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
-      primaryPhysician: appointment && appointment.primaryPhysician,
-      schedule: appointment ? new Date(appointment.schedule) : new Date(),
+      primaryPhysician: appointment ? appointment?.primaryPhysician : "",
+      schedule: appointment
+        ? new Date(appointment?.schedule!)
+        : new Date(Date.now()),
       reason: appointment ? appointment.reason : "",
-      note: appointment ? appointment.note : "",
-      cancellationReason: appointment ? appointment.cancellationReason : "",
+      note: appointment?.note || "",
+      cancellationReason: appointment?.cancellationReason || "",
     },
   });
 
-  async function onSubmit(data: z.infer<typeof AppointmentFormValidation>) {
+  const onSubmit = async (
+    values: z.infer<typeof AppointmentFormValidation>
+  ) => {
     setIsLoading(true);
 
     let status;
-
     switch (type) {
       case "schedule":
         status = "scheduled";
@@ -64,40 +67,37 @@ export const AppointmentForm = ({
         break;
       default:
         status = "pending";
-        break;
     }
 
     try {
       if (type === "create" && patientId) {
-        const appointmentData = {
+        const appointment = {
           userId,
           patient: patientId,
-          primaryPhysician: data.primaryPhysician,
-          schedule: new Date(data.schedule),
-          reason: data.reason!,
-          note: data.note,
+          primaryPhysician: values.primaryPhysician,
+          schedule: new Date(values.schedule),
+          reason: values.reason!,
           status: status as Status,
+          note: values.note,
         };
 
-        const appointment = await createAppointment(appointmentData);
+        const newAppointment = await createAppointment(appointment);
 
-        if (appointment) {
+        if (newAppointment) {
           form.reset();
           router.push(
-            `/patients/${userId}/new-appointment/success?appointmentId=${appointment.$id}`
+            `/patients/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`
           );
         }
-
-        return appointment;
       } else {
         const appointmentToUpdate = {
           userId,
           appointmentId: appointment?.$id!,
           appointment: {
-            primaryPhysician: data.primaryPhysician,
-            schedule: new Date(data.schedule),
-            cancelationReason: data.reason!,
+            primaryPhysician: values.primaryPhysician,
+            schedule: new Date(values.schedule),
             status: status as Status,
+            cancellationReason: values.cancellationReason,
           },
           type,
         };
@@ -109,30 +109,22 @@ export const AppointmentForm = ({
           form.reset();
         }
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
     }
-  }
+    setIsLoading(false);
+  };
 
   let buttonLabel;
-
   switch (type) {
     case "cancel":
       buttonLabel = "Cancelar consulta";
       break;
-
-    case "create":
-      buttonLabel = "Criar consulta";
-      break;
-
     case "schedule":
       buttonLabel = "Agendar consulta";
       break;
-
     default:
-      break;
+      buttonLabel = "Registrar consulta";
   }
 
   return (
@@ -204,8 +196,8 @@ export const AppointmentForm = ({
             fieldType={FormFieldType.TEXTAREA}
             control={form.control}
             name="cancellationReason"
-            label="Motivo do cancelamento"
-            placeholder="Qual o motivo do cancelamento?"
+            label="Reason for cancellation"
+            placeholder="Urgent meeting came up"
           />
         )}
 
