@@ -6,8 +6,9 @@ import {
   APPOINTMENT_COLLECTION_ID,
   DATABASE_ID,
   databases,
+  messaging,
 } from "../appwrite.config";
-import { parseStringify } from "../utils";
+import { formatDateTime, parseStringify } from "../utils";
 import { Appointment } from "@/types/appwrite.types";
 
 export const createAppointment = async (
@@ -99,11 +100,38 @@ export const updateAppointment = async ({
       throw new Error("Appointment not found.");
     }
 
-    // TODO SMS notification
+    // SMS notification
+    const smsMessage = `^
+    Olá, aqui é do MediGo. 
+    ${
+      type === "schedule"
+        ? `Sua consulta foi agendada para ${
+            formatDateTime(appointment.schedule!).dateTime
+          } com o Dr(a). ${appointment.primaryPhysician}`
+        : `Nós entraremos em contato para imformar que sua consulta foi cancelada pelo seguinte motivo: 
+        ${appointment.cancellationReason}`
+    }`;
+
+    await sendSMSNotification(userId, smsMessage);
 
     revalidatePath("/admin");
 
     return parseStringify(updatedAppointment);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const sendSMSNotification = async (userId: string, content: string) => {
+  try {
+    const message = await messaging.createSms(
+      ID.unique(),
+      content,
+      [],
+      [userId]
+    );
+
+    return parseStringify(message);
   } catch (err) {
     console.error(err);
   }
