@@ -23,8 +23,8 @@ type AppointmentFormProps = {
   userId: string;
   patientId: string;
   type: "create" | "cancel" | "schedule";
-  appointment: any;
-  setOpen: (open: boolean) => void;
+  appointment?: any;
+  setOpen?: (open: boolean) => void;
 };
 
 export const AppointmentForm = ({
@@ -105,7 +105,7 @@ export const AppointmentForm = ({
         const updatedAppointment = await updateAppointment(appointmentToUpdate);
 
         if (updatedAppointment) {
-          setOpen(false);
+          setOpen && setOpen(false);
           form.reset();
         }
       }
