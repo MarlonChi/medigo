@@ -6,7 +6,7 @@ Aplicação para agendamento e gerenciamento de consultas médicas. Usando NextJ
 
 ## Live
 
-Acesse <http://localhost:5173> para visualizar a aplicação.
+Acesse <https://medigo-three.vercel.app/> para visualizar a aplicação.
 
 ## Tech Stack
 - React/Nextjs
