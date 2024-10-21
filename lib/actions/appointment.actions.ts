@@ -107,7 +107,7 @@ export const updateAppointment = async ({
       type === "schedule"
         ? `Sua consulta foi agendada para ${
             formatDateTime(appointment.schedule!).dateTime
-          } com o Dr(a). ${appointment.primaryPhysician}`
+          } com o(a) Dr(a). ${appointment.primaryPhysician}`
         : `Nós entraremos em contato para imformar que sua consulta foi cancelada pelo seguinte motivo: 
         ${appointment.cancellationReason}`
     }`;
